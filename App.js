@@ -1,86 +1,49 @@
-import React from "react";
-import {StyleSheet, Text, View, FlatList, TouchableOpacity, SafeAreaView } from "react-native";
-import{NavigationContainer}from'@react-natigation/native';
-import{createStackNavigator}from'@react-navigation/stack';
-//---TELA DE CONFIGURAÇÕES(A NOVA PÁGINA)---
-function SettingsScreen(){
-    return(
-        <View style={styles.centerContainer}>
-         <Text style={styles.hearder}>Página de Configurações</Text>
-         <Text>Aqui você pode ajustar as preferências do app.</Text>
-        </View>
-        );
-      ) 
-    
-        
+import * as React from 'react';
+import { Image, View, Text, Platform } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-const data=[
-    {id: '1', title : 'configurações'},
-    {id: '2', title: 'perfil'},
-    {id: '3', title: 'mensagem'},
-    {id: '4', title: 'segurança'},
-    {id: '5', title: 'ajuda'},
-];
-    const renderItem = ({item}) => (
-<TouchableOpacity
-        style={styles.button} 
-        onPress ={() => alert (`você clicou em ${item.title}`)}>
-            if(item.id==='1'){
-            //Se for o ID 1. navega para a página de Configurações
-             navigation.navigate('Settings');
-            }
-           }} 
-          >
-            <Text style={styles.buttonText}> {item.title}</Text>
-           </TouchableOpacity>
+import HomeScreen from './screens/HomeScreen';
+import IngredientsScreen from './screens/IngredientsScreen';
+import ToolsScreen from './screens/ToolsScreen';
+import StepsScreen from './screens/StepsScreen';
+
+const Stack = createStackNavigator();
+
+function LogoTitle() {
+return (
+<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+<Image
+style={{ width: 30, height: 30, marginRight: 10 }}
+source={require('./assets/logo.png')}
+/>
+<Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+Receitas Incríveis
+</Text>
+</View>
 );
-
-   return(
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.header}>
-                Menu Principal
-            </Text>
-            <FlatList data={data} renderItem={renderItem} keyExtraction={item => item.id} contentContainerStyles={styles.listPadding}/>
-        </SafeAreaView>
-    );
 }
 
-//---CONFIGURAÇÃO DO NAVEGADOR---
-const Stack=createStackNavigator();
-
-export default function App(){
-    return(
-        <NavigationContainer>
-        <Stack.Screen
-    name=
-const styles = StyleSheet.create({
-    container:{
-        flex: 1,
-        backgroundColor: '#f5f5f5'
-    },
-    header:{
-      fontSize:24,
-      fontWeight:'bold',
-      textAlign:'center',
-      marginVertical:20
-      },
-    listPadding:{
-        paddingHorizontal: 20
-    },
-    button:{
-        backgroundColor: '#007aff',
-        padding: 15,
-        borderRadius: 8,
-        marginBottom: 10,
-        alignItems:'center',
-        elevation: 2,
-    shadowColor: '#000',
-    shadowOffset:{width:0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius:4,},
-    buttonText: {
-    color: '#fff',
-        fontSize: 16,
-        fontWeight:'600',
-    },
-    });
+export default function App() {
+return (
+<NavigationContainer>
+<Stack.Navigator
+screenOptions={{
+headerStyle: { backgroundColor: '#f4511e' },
+headerTintColor: '#fff',
+// AJUSTE CRUCIAL: Remove a trava de altura no navegador
+cardStyle: { flex: 1, backgroundColor: '#fff', overflow: Platform.OS === 'web' ? 'visible' : 'hidden' }
+}}
+>
+<Stack.Screen
+name="Home"
+component={HomeScreen}
+options={{ headerTitle: props => <LogoTitle {...props} /> }}
+/>
+<Stack.Screen name="Ingredientes" component={IngredientsScreen} />
+<Stack.Screen name="Utensílios" component={ToolsScreen} />
+<Stack.Screen name="Passo a Passo" component={StepsScreen} />
+</Stack.Navigator>
+</NavigationContainer>
+);
+}    });
