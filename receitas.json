@@ -11,7 +11,7 @@
  "Acrescente o cacau e o corante vermelho.", "Coloque a farinha e o sal, misturando até ficar homogêneo.",
  "Em um copo, misture o vinagre com o bicarbonato e adicione à massa.", "Despeje em uma forma untada.",
  "Asse em forno 180°C por 35–40 minutos."]},
- "videoUrl": "https://raw.githubusercontent.com/httpss-maria/Projeto-Mobile-J/blob/main/videos/laranja.mp4?raw=true" },
+ "videoUrl": "https://github.com/CerejaVermeha02/AnaMaria_c-digo/blob/main/receitas.json/Projeto-Mobile-J/blob/main/videos/laranja.mp4?raw=true" },
 
  { "id": "6", "nome": "Bolo de Aipim", "img": "bolo_aipim.png", "ingredientes":{"Massa": ["1 kg de aipim (mandioca) ralado",
   "3 ovos", "2 xícaras de açúcar", "200 ml de leite de coco", "2 colheres (sopa) de manteiga", "1 pitada de sal",    
