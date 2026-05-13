@@ -46,4 +46,4 @@ options={{ headerTitle: props => <LogoTitle {...props} /> }}
 </Stack.Navigator>
 </NavigationContainer>
 );
-}    });
+}
