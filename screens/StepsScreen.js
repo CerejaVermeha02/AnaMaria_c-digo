@@ -1,136 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 
-export default function IngredientsScreen({ route, navigation }) {
+export default function StepsScreen({ route, navigation }) {
 const { receitaCompleta } = route.params || {};
-// Estado para armazenar os ingredientes agrupados por categoria
-const [grupos, setGrupos] = useState({});
+const [mostrarVideo, setMostrarVideo] = useState(false);
 
-useEffect(() => {
-// Verifica se os ingredientes existem e se estão no novo formato de objeto
-if (receitaCompleta?.ingredientes) {
-const novoEstado = {};
-
-// Itera sobre as chaves (ex: Massa, Recheio) e prepara o estado com 'checked'
-Object.entries(receitaCompleta.ingredientes).forEach(([titulo, lista]) => {
-novoEstado[titulo] = lista.map((ing, index) => ({
-id: `${titulo}-${index}`, // ID único combinando categoria e índice
-name: ing,
-checked: false
-}));
-});
-
-setGrupos(novoEstado);
-}
-}, [receitaCompleta]);
-
-// Função para alternar o checkbox dentro de uma categoria específica
-const toggleCheck = (categoria, id) => {
-setGrupos(prev => ({
-...prev,
-[categoria]: prev[categoria].map(item =>
-item.id === id ? { ...item, checked: !item.checked } : item
-)
-}));
-};
+// Agora passos é um objeto. Se for um array antigo, evitamos erro com o || {}
+const passosObjeto = receitaCompleta?.passos || {};
 
 return (
-<SafeAreaView style={styles.safeArea}>
+<View style={styles.outerContainer}>
 <ScrollView
 style={styles.scrollView}
 contentContainerStyle={styles.scrollContent}
+scrollEnabled={true}
+alwaysBounceVertical={true}
+showsVerticalScrollIndicator={true}
 >
-<Text style={styles.title}>Ingredientes para:</Text>
-<Text style={styles.recipeSubtitle}>{receitaCompleta?.nome}</Text>
+<Text style={styles.title}>Preparando {receitaCompleta?.nome}</Text>
 
-{/* Mapeia as categorias (Massa, Recheio, etc) */}
-{Object.entries(grupos).map(([categoria, listaDeItens]) => (
-<View key={categoria} style={styles.categoriaContainer}>
-{/* Título da Categoria */}
-<View style={styles.badgeCategoria}>
-<Text style={styles.badgeText}>{categoria}</Text>
-</View>
-
-{/* Lista de ingredientes daquela categoria */}
-{listaDeItens.map(item => (
-<View key={item.id} style={styles.itemRow}>
-<Switch
-value={item.checked}
-onValueChange={() => toggleCheck(categoria, item.id)}
-trackColor={{ true: "#f4511e" }}
-/>
-<Text style={[styles.itemText, item.checked && styles.checkedText]}>
-{item.name}
+{receitaCompleta?.videoUrl && (
+<TouchableOpacity style={styles.videoButton} onPress={() => setMostrarVideo(!mostrarVideo)}>
+<Text style={styles.buttonText}>
+{mostrarVideo ? "🔼 Fechar Vídeo" : "🎥 Assistir Modo de Preparo"}
 </Text>
+</TouchableOpacity>
+)}
+
+{mostrarVideo && (
+<View style={styles.videoWrapper}>
+<Video
+source={{ uri: receitaCompleta.videoUrl }}
+style={styles.video}
+videoStyle={{ width: '100%', height: '100%' }}
+useNativeControls
+resizeMode={ResizeMode.CONTAIN}
+isMuted={false}
+shouldPlay={false}
+/>
+</View>
+)}
+
+{/* Lógica para mapear as categorias de passos (Massa, Recheio, etc) */}
+{Object.entries(passosObjeto).map(([categoria, listaDePassos]) => (
+<View key={categoria} style={styles.sectionContainer}>
+{/* Título da Categoria do Passo (ex: MODO DE PREPARO: MASSA) */}
+<View style={styles.categoryBadge}>
+<Text style={styles.categoryBadgeText}>{categoria}</Text>
+</View>
+
+{listaDePassos.map((passo, index) => (
+<View key={`${categoria}-${index}`} style={styles.stepCard}>
+<Text style={styles.stepNum}>PASSO {index + 1}</Text>
+<Text style={styles.stepText}>{passo}</Text>
 </View>
 ))}
 </View>
 ))}
 
-<TouchableOpacity
-style={styles.button}
-onPress={() => navigation.navigate('Utensílios', { receitaCompleta })}
->
-<Text style={styles.buttonText}>Ver Utensílios 🥄</Text>
+<TouchableOpacity style={styles.homeButton} onPress={() => navigation.popToTop()}>
+<Text style={styles.buttonText}>Finalizar e Voltar ✨</Text>
 </TouchableOpacity>
 </ScrollView>
-</SafeAreaView>
+</View>
 );
 }
 
 const styles = StyleSheet.create({
-safeArea: {
+outerContainer: {
 flex: 1,
 backgroundColor: '#e8e814',
-minHeight: Platform.OS === 'web' ? '100vh' : '100%'
+height: Platform.OS === 'web' ? '100vh' : '100%',
+overflow: 'hidden',
 },
-scrollView: { flex: 1 },
+scrollView: {
+flex: 1,
+overflowY: Platform.OS === 'web' ? 'auto' : 'scroll',
+WebkitOverflowScrolling: 'touch',
+},
 scrollContent: {
 padding: 20,
 flexGrow: 1,
-paddingBottom: 60
+paddingBottom: 80,
+minHeight: '100%',
 },
-title: { fontSize: 18, color: '#666' },
-recipeSubtitle: { fontSize: 24, fontWeight: 'bold', color: '#000', marginBottom: 15 },
+title: { fontSize: 24, fontWeight: 'bold', color: '#000', marginBottom: 20 },
+videoButton: { backgroundColor: '#f4511e', padding: 15, borderRadius: 12, marginBottom: 20 },
+videoWrapper: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000', borderRadius: 15, overflow: 'hidden', marginBottom: 25 },
+video: { flex: 1 },
 
-// Estilos novos para organização por subtítulos
-categoriaContainer: {
-marginTop: 15,
-marginBottom: 10
-},
-badgeCategoria: {
-backgroundColor: '#f4511e',
-paddingVertical: 4,
-paddingHorizontal: 12,
+// Estilos para as categorias de passos
+sectionContainer: { marginBottom: 30 },
+categoryBadge: {
+backgroundColor: '#f4511e', // Verde para diferenciar dos ingredientes
+paddingVertical: 6,
+paddingHorizontal: 15,
 borderRadius: 8,
-alignSelf: 'flex-start',
-marginBottom: 10
+marginBottom: 15,
+alignSelf: 'flex-start'
 },
-badgeText: {
-color: '#fff',
-fontWeight: 'bold',
-fontSize: 14,
-textTransform: 'uppercase'
-},
+categoryBadgeText: { color: '#fff', fontWeight: 'bold', textTransform: 'uppercase', fontSize: 14 },
 
-itemRow: {
-flexDirection: 'row',
-alignItems: 'center',
-marginVertical: 4,
-padding: 12,
+stepCard: {
+padding: 18,
 backgroundColor: '#f4511e',
 borderRadius: 12,
-borderWidth: 1,
-borderColor: '#eee'
+marginBottom: 15,
+borderLeftWidth: 6,
+borderLeftColor: '#333'
 },
-itemText: { marginLeft: 10, fontSize: 16, color: '#fff', flex: 1 },
-checkedText: { textDecorationLine: 'line-through', color: '#aaa' },
-button: {
-backgroundColor: '#f4511e',
-padding: 18,
-borderRadius: 15,
-marginTop: 30,
-marginBottom: 20
-},
+stepNum: { fontSize: 12, fontWeight: 'bold', color: '#fff', marginBottom: 4 },
+stepText: { fontSize: 17, color: '#fff', lineHeight: 24 },
+
+homeButton: { backgroundColor: '#f4511e', padding: 20, borderRadius: 15, marginTop: 20, marginBottom: 40 },
 buttonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 16 }
 });
